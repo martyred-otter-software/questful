@@ -86,7 +86,7 @@ class Player extends Character {
     this.attackRange = allAnimatedObjectData[type]['attackRange'];
     this.attackArc = allAnimatedObjectData[type]['attackArcDeg'] * Math.PI / 180;
     this.attackTimer = 0;
-    this.attackDelay = 20;
+    this.attackDelay = 5;
     this.attackType = 'ranged';
     this.maxHP = allAnimatedObjectData[type]['maxHP'];
     this.HP = 0.8 * this.maxHP;
@@ -94,10 +94,8 @@ class Player extends Character {
 
   move() {
     super.move();
-    if (this.attacking) {
+    if (this.attacking)
       this.attack();
-      return;
-    }
     this.attackTimer++;
     let deltaX = this.dx;
     while (!collisionOk(this.x + deltaX, this.y, this.collisionMask) && deltaX !== 0) {
