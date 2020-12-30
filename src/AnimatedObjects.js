@@ -5,9 +5,9 @@ class AnimatedObject {
     this.dx = 0;
     this.dy = 0;
     this.sprites = allSprites[type];
-    this.spd = allAOData[type]['speed'];
-    this.ccx = allAOData[type]['collisionCenter'][0];
-    this.ccy = allAOData[type]['collisionCenter'][1];
+    this.spd = allAnimatedObjectData[type]['speed'];
+    this.ccx = allAnimatedObjectData[type]['collisionCenter'][0];
+    this.ccy = allAnimatedObjectData[type]['collisionCenter'][1];
   }
 }
 
@@ -16,13 +16,19 @@ class Projectile extends AnimatedObject {
     super(x, y, type);
     this.travelling = true;
     this.travelAngle = Math.acos(dx / norm(dx, dy));
-    this.hx = allAOData[type]['projectileLength'] / 2 * dx / norm(dx, dy);
-    this.hy = allAOData[type]['projectileLength'] / 2 * dy / norm(dx, dy);
+    this.hx = allAnimatedObjectData[type]['projectileLength'] / 2 * dx / norm(dx, dy);
+    this.hy = allAnimatedObjectData[type]['projectileLength'] / 2 * dy / norm(dx, dy);
+    this.dx = this.spd * dx / norm(dx, dy);
+    this.dy = this.spd * dy / norm(dx, dy);
     if (dy < 0)
       this.travelAngle = 2 * Math.PI - this.travelAngle;
+    let tempArray = ['r', 'dr', 'd', 'dl', 'l', 'ul', 'u', 'ur','r'];
+    this.dir = tempArray[Math.round(this.travelAngle * 4 / Math.PI)];
   }
 
   move() {
+    if (!this.travelling)
+      return;
     this.x += this.dx;
     this.y += this.dy;
     let hix = Math.floor((this.x + this.ccx + this.hx) / TILE_WIDTH);
@@ -33,16 +39,22 @@ class Projectile extends AnimatedObject {
     }
 
   }
+
+  draw() {
+    if (this.travelling) {
+      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][0]);
+    }
+  }
 }
 
 class Character extends AnimatedObject {
   constructor(x, y, type) {
     super(x, y, type);
-    this.stands = allAOData[type]['sprite']['stands'];
-    this.nRunFrames = allAOData[type]['sprite']['nRunFrames'];
-    this.collisionMask = allAOData[type]['collisionMask'];
-    this.spriteWidth = allAOData[type]['sprite']['width'];
-    this.spriteHeight = allAOData[type]['sprite']['height'];
+    this.stands = allAnimatedObjectData[type]['sprite']['stands'];
+    this.nRunFrames = allAnimatedObjectData[type]['sprite']['nRunFrames'];
+    this.collisionMask = allAnimatedObjectData[type]['collisionMask'];
+    this.spriteWidth = allAnimatedObjectData[type]['sprite']['width'];
+    this.spriteHeight = allAnimatedObjectData[type]['sprite']['height'];
     this.stepCounter = 0;
     this.attacking = false;
     this.attackX = 0;
@@ -70,13 +82,13 @@ class Character extends AnimatedObject {
 class Player extends Character {
   constructor(x, y, type) {
     super(x, y, type);
-    this.attackDamage = allAOData[type]['attackDamage'];
-    this.attackRange = allAOData[type]['attackRange'];
-    this.attackArc = allAOData[type]['attackArcDeg'] * Math.PI / 180;
+    this.attackDamage = allAnimatedObjectData[type]['attackDamage'];
+    this.attackRange = allAnimatedObjectData[type]['attackRange'];
+    this.attackArc = allAnimatedObjectData[type]['attackArcDeg'] * Math.PI / 180;
     this.attackTimer = 0;
     this.attackDelay = 20;
-    this.attackType = 'melee';
-    this.maxHP = allAOData[type]['maxHP'];
+    this.attackType = 'ranged';
+    this.maxHP = allAnimatedObjectData[type]['maxHP'];
     this.HP = 0.8 * this.maxHP;
   }
 
@@ -168,7 +180,7 @@ class Player extends Character {
   }
 
   meleeAttack() {
-    let enemies = characters.slice(1);
+    let enemies = animatedObjects.slice(1);
     for (let i = 0; i < enemies.length; i++) {
       let enemy = enemies[i];
       let sepX = enemy.x + enemy.ccx - (this.x + this.ccx);
@@ -202,16 +214,17 @@ class Player extends Character {
   }
 
   rangedAttack(){
+    animatedObjects.push(new Projectile(this.x + this.ccx, this.y + this.ccy, this.attackX, this.attackY, 'playerRangedAttack'));
   }
 }
 
 class Enemy extends Character {
   constructor(x, y, type) {
     super(x, y, type);
-    this.maxHP = allAOData[type]['maxHP'];
+    this.maxHP = allAnimatedObjectData[type]['maxHP'];
     this.HP = this.maxHP;
-    this.HPBarCenter = allAOData[type]['sprite']['HPBarCenter'];
-    this.HPBarWidth = allAOData[type]['sprite']['HPBarWidth'];
+    this.HPBarCenter = allAnimatedObjectData[type]['sprite']['HPBarCenter'];
+    this.HPBarWidth = allAnimatedObjectData[type]['sprite']['HPBarWidth'];
   }
 
   move() {

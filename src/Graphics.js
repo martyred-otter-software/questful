@@ -13,9 +13,9 @@ function padTilemapToFitScreen(map) {
         result[j].push(0);
     }
   }
-  for (let c = 0; c < characters.length; c++) {
-    characters[c].x += hPadding * TILE_WIDTH;
-    characters[c].y += vPadding * TILE_HEIGHT;
+  for (let c = 0; c < animatedObjects.length; c++) {
+    animatedObjects[c].x += hPadding * TILE_WIDTH;
+    animatedObjects[c].y += vPadding * TILE_HEIGHT;
   }
   for (let l = 0; l < loadingZones.length; l++) {
     loadingZones[l]['ix'] += hPadding;

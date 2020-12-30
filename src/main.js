@@ -5,7 +5,7 @@ const FRAMES_PER_STEP = 3;
 const delay = 25; // ms delay
 const DIRECTIONS = ['ul', 'u', 'ur', 'l', '0', 'r', 'dl', 'd', 'dr'];
 const AGGRO_RANGE = 1000;
-const CHARACTER_TYPES = ['player', 'orc'];
+const ANIMATED_OBJECT_TYPES = ['player', 'orc', 'playerRangedAttack'];
 
 let c = document.getElementById("myCanvas");
 let ctx = c.getContext("2d");
@@ -32,10 +32,10 @@ var vertices = [];
 var edges = [];
 var paths = [];
 
-var allAOData = {};
+var allAnimatedObjectData = {};
 var allSprites = {};
 
-var characters;
+var animatedObjects;
 var player;
 var enemyList;
 
@@ -55,13 +55,13 @@ init().then(() => {
           ctx.canvas.width = window.innerWidth;
           ctx.canvas.height = window.innerHeight;
           viewableHeight = window.innerHeight - HUDHeight;
-          for (let i = 0; i < characters.length; i++) {
-            characters[i].move();
+          for (let i = 0; i < animatedObjects.length; i++) {
+            animatedObjects[i].move();
           }
           drawBG(sx, sy);
           drawHUD(player);
-          for (let i = 0; i < characters.length; i++)
-            characters[i].draw();
+          for (let i = 0; i < animatedObjects.length; i++)
+            animatedObjects[i].draw();
         }, delay);
       });
       reloadLZ = false;
@@ -91,8 +91,8 @@ init().then(() => {
   });
 
   window.addEventListener("mousedown", function (e) {
-    player.attackX = e.screenX + sx;
-    player.attackY = e.screenY + sy;
+    player.attackX = e.offsetX - (player.x + player.ccx) + sx;
+    player.attackY = e.offsetY - (player.y + player.ccy) + sy;
     player.attacking = true;
   });
 
@@ -102,13 +102,13 @@ init().then(() => {
 });
 
 async function init() {
-  for (let c = 0; c < CHARACTER_TYPES.length; c++) {
-    let ch = CHARACTER_TYPES[c];
+  for (let c = 0; c < ANIMATED_OBJECT_TYPES.length; c++) {
+    let ch = ANIMATED_OBJECT_TYPES[c];
 
     await fetch('data/' + ch + '.json')
       .then(response => response.json())
       .then((data) => {
-        allAOData[ch] = data;
+        allAnimatedObjectData[ch] = data;
       });
 
     allSprites[ch] = {};
@@ -116,7 +116,7 @@ async function init() {
       let dir = DIRECTIONS[id];
       if (dir === '0')
         continue;
-      let curSpriteData = allAOData[ch]['sprite'];
+      let curSpriteData = allAnimatedObjectData[ch]['sprite'];
       allSprites[ch][dir] = new Array(curSpriteData['data'][dir].length);
       for (let fr = 0; fr < curSpriteData['data'][dir].length; fr++) {
 
@@ -155,9 +155,9 @@ async function loadLZ(world) {
       loadingZones = data['loadingZones'];
     });
 
-  characters = [];
+  animatedObjects = [];
   player = new Player(x0, y0, 'player')
-  characters.push(player);
+  animatedObjects.push(player);
   if (x0 + player.spriteWidth > window.innerWidth)
     sx = Math.min(x0 - PADDING_SIZE, TILE_WIDTH * mapWidth - window.innerWidth);
   else
@@ -168,7 +168,7 @@ async function loadLZ(world) {
     sy = 0;
 
   for (let i = 0; i < enemyList.length; i++) {
-    characters.push(new Enemy(enemyList[i]['x0'], enemyList[i]['y0'], enemyList[i]['type']));
+    animatedObjects.push(new Enemy(enemyList[i]['x0'], enemyList[i]['y0'], enemyList[i]['type']));
   }
   tiles = new Array(numTiles);
   for (let tIdx = 0; tIdx < numTiles; tIdx++) {
