@@ -1,5 +1,5 @@
 {
-  "speed" : 50,
+  "speed" : 20,
   "projectileLength" : 32,
   "collisionCenter" : [16,16],
   "sprite" : {

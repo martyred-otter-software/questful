@@ -36,6 +36,7 @@ var allAnimatedObjectData = {};
 var allSprites = {};
 
 var animatedObjects;
+var enemies;
 var player;
 var enemyList;
 
@@ -156,6 +157,7 @@ async function loadLZ(world) {
     });
 
   animatedObjects = [];
+  enemies = [];
   player = new Player(x0, y0, 'player')
   animatedObjects.push(player);
   if (x0 + player.spriteWidth > window.innerWidth)
@@ -169,6 +171,7 @@ async function loadLZ(world) {
 
   for (let i = 0; i < enemyList.length; i++) {
     animatedObjects.push(new Enemy(enemyList[i]['x0'], enemyList[i]['y0'], enemyList[i]['type']));
+    enemies.push(animatedObjects[animatedObjects.length - 1]);
   }
   tiles = new Array(numTiles);
   for (let tIdx = 0; tIdx < numTiles; tIdx++) {

@@ -1,6 +1,6 @@
 {
   "speed" : 5,
-  "maxHP" : 20,
+  "maxHP" : 100,
   "attackDamage" : 2,
   "collisionCenter" : [40,48],
   "collisionMask" :

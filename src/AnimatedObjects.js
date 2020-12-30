@@ -37,7 +37,17 @@ class Projectile extends AnimatedObject {
       this.travelling = false;
       return;
     }
-
+    for (let i = 0; i < enemies.length; i++) {
+      let e = enemies[i];
+      let hsx = this.x + this.ccx + this.hx - e.x;
+      let hsy = this.y + this.ccy + this.hy - e.y;
+      if (hsx >= 0 && hsx < e.spriteWidth && hsy >= 0 && hsy < e.spriteHeight){
+        if (e.sprites[e.dir][Math.floor(e.stepCounter / FRAMES_PER_STEP)].data[4 * (hsx + hsy * e.spriteWidth) + 3] !== 0) {
+          this.travelling = false;
+          e.HP -= player.attackDamage;
+        }
+      }
+    }
   }
 
   draw() {
@@ -178,7 +188,6 @@ class Player extends Character {
   }
 
   meleeAttack() {
-    let enemies = animatedObjects.slice(1);
     for (let i = 0; i < enemies.length; i++) {
       let enemy = enemies[i];
       let sepX = enemy.x + enemy.ccx - (this.x + this.ccx);
