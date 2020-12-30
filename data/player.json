@@ -4,6 +4,7 @@
   "attackRange" : 100,
   "attackArcDeg" : 90,
   "maxHP" : 50,
+  "rangedAttackOrigin" : [32,20],
   "collisionCenter" : [32,48],
   "collisionMask" :
     [

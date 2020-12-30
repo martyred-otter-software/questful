@@ -8,13 +8,13 @@ class AnimatedObject {
     this.spd = allAnimatedObjectData[type]['speed'];
     this.ccx = allAnimatedObjectData[type]['collisionCenter'][0];
     this.ccy = allAnimatedObjectData[type]['collisionCenter'][1];
+    this.markedForDeletion = false;
   }
 }
 
 class Projectile extends AnimatedObject {
   constructor(x, y, dx, dy, type) {
     super(x, y, type);
-    this.travelling = true;
     this.travelAngle = Math.acos(dx / norm(dx, dy));
     this.hx = allAnimatedObjectData[type]['projectileLength'] / 2 * dx / norm(dx, dy);
     this.hy = allAnimatedObjectData[type]['projectileLength'] / 2 * dy / norm(dx, dy);
@@ -27,14 +27,14 @@ class Projectile extends AnimatedObject {
   }
 
   move() {
-    if (!this.travelling)
+    if (this.markedForDeletion)
       return;
     this.x += this.dx;
     this.y += this.dy;
     let hix = Math.floor((this.x + this.ccx + this.hx) / TILE_WIDTH);
     let hiy = Math.floor((this.y + this.ccy + this.hy) / TILE_HEIGHT);
     if (!tileData[tileMap[hiy][hix]]['passable']) {
-      this.travelling = false;
+      this.markedForDeletion = true;
       return;
     }
     for (let i = 0; i < enemies.length; i++) {
@@ -43,15 +43,17 @@ class Projectile extends AnimatedObject {
       let hsy = this.y + this.ccy + this.hy - e.y;
       if (hsx >= 0 && hsx < e.spriteWidth && hsy >= 0 && hsy < e.spriteHeight){
         if (e.sprites[e.dir][Math.floor(e.stepCounter / FRAMES_PER_STEP)].data[4 * (hsx + hsy * e.spriteWidth) + 3] !== 0) {
-          this.travelling = false;
+          this.markedForDeletion = true;
           e.HP -= player.attackDamage;
+          if (e.HP <= 0)
+            e.markedForDeletion = true;
         }
       }
     }
   }
 
   draw() {
-    if (this.travelling) {
+    if (!this.markedForDeletion) {
       drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][0]);
     }
   }
@@ -95,6 +97,8 @@ class Player extends Character {
     this.attackDamage = allAnimatedObjectData[type]['attackDamage'];
     this.attackRange = allAnimatedObjectData[type]['attackRange'];
     this.attackArc = allAnimatedObjectData[type]['attackArcDeg'] * Math.PI / 180;
+    this.rx = allAnimatedObjectData[type]['rangedAttackOrigin'][0];
+    this.ry = allAnimatedObjectData[type]['rangedAttackOrigin'][1];
     this.attackTimer = 0;
     this.attackDelay = 5;
     this.attackType = 'ranged';
@@ -216,12 +220,14 @@ class Player extends Character {
         attackInRange = false;
       if (attackInRange) {
         enemy.HP -= this.attackDamage;
+        if (enemy.HP <= 0)
+          enemy.markedForDeletion = true;
       }
     }
   }
 
   rangedAttack(){
-    animatedObjects.push(new Projectile(this.x + this.ccx, this.y + this.ccy, this.attackX, this.attackY, 'playerRangedAttack'));
+    animatedObjects.push(new Projectile(this.x + this.rx, this.y + this.ry, this.attackX, this.attackY, 'playerRangedAttack'));
   }
 }
 
@@ -236,7 +242,7 @@ class Enemy extends Character {
 
   move() {
     super.move();
-    if (this.HP <= 0)
+    if (this.markedForDeletion)
       return;
     if (distance(this.x, this.y, player.x, player.y) < AGGRO_RANGE) {
       this.dx = Math.min(this.spd, Math.abs(player.x - this.x)) * Math.sign(player.x - this.x);
@@ -261,7 +267,7 @@ class Enemy extends Character {
   }
 
   draw() {
-    if (this.HP <= 0)
+    if (this.markedForDeletion)
       return;
     let currentSprite;
     if (this.stands && this.dx === 0 && this.dy === 0)

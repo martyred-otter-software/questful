@@ -56,13 +56,21 @@ init().then(() => {
           ctx.canvas.width = window.innerWidth;
           ctx.canvas.height = window.innerHeight;
           viewableHeight = window.innerHeight - HUDHeight;
+
+          for (let i = 0; i < enemies.length; i++) {
+            if (enemies[i].markedForDeletion)
+              enemies.splice(i--,1);
+          }
           for (let i = 0; i < animatedObjects.length; i++) {
             animatedObjects[i].move();
+            if (animatedObjects[i].markedForDeletion)
+              animatedObjects.splice(i--,1);
           }
           drawBG(sx, sy);
           drawHUD(player);
           for (let i = 0; i < animatedObjects.length; i++)
             animatedObjects[i].draw();
+          ctx.strokeText(animatedObjects.length, 10, 10);
         }, delay);
       });
       reloadLZ = false;
