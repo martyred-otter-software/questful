@@ -1,5 +1,6 @@
 {
   "speed" : 15,
+  "range" : 750,
   "projectileLength" : 32,
   "collisionCenter" : [16,16],
   "sprite" : {

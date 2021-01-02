@@ -5,7 +5,7 @@ const FRAMES_PER_STEP = 3;
 const delay = 25; // ms delay
 const DIRECTIONS = ['ul', 'u', 'ur', 'l', '0', 'r', 'dl', 'd', 'dr'];
 const AGGRO_RANGE = 1000;
-const ANIMATED_OBJECT_TYPES = ['player', 'orc', 'playerRangedAttack'];
+const ANIMATED_OBJECT_TYPES = ['player', 'orc', 'man1', 'playerRangedAttack'];
 
 let c = document.getElementById("myCanvas");
 let ctx = c.getContext("2d");
@@ -39,6 +39,7 @@ var animatedObjects;
 var enemies;
 var player;
 var enemyList;
+var npcList;
 
 var currentLZ = 'data/overworld.json';
 var x0 = 128;
@@ -70,6 +71,7 @@ init().then(() => {
           drawHUD(player);
           for (let i = 0; i < animatedObjects.length; i++)
             animatedObjects[i].draw();
+          ctx.strokeStyle = "#ffffff";
           ctx.strokeText(animatedObjects.length, 10, 10);
         }, delay);
       });
@@ -161,6 +163,7 @@ async function loadLZ(world) {
       tileMap = data['map'];
       numTiles = data['nTiles'];
       enemyList = data['enemies'];
+      npcList = data['npcs'];
       loadingZones = data['loadingZones'];
     });
 
@@ -181,6 +184,8 @@ async function loadLZ(world) {
     animatedObjects.push(new Enemy(enemyList[i]['x0'], enemyList[i]['y0'], enemyList[i]['type']));
     enemies.push(animatedObjects[animatedObjects.length - 1]);
   }
+  for (let i = 0; i < npcList.length; i++)
+    animatedObjects.push(new NPC(npcList[i]['x0'], npcList[i]['y0'], npcList[i]['type']));
   tiles = new Array(numTiles);
   for (let tIdx = 0; tIdx < numTiles; tIdx++) {
     await fetch(tileData[tIdx]['data'])
