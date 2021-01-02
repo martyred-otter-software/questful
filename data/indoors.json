@@ -62,10 +62,18 @@
   ],
 
   "characterTypes" : [
-    "player"
+    "player",
+    "man1"
   ],
   "enemies" : [],
-
+  "npcs" : [
+    {
+      "type" : "man1",
+      "x0" : 64,
+      "y0" : 32,
+      "data" : "data/man1.json"
+    }
+  ],
   "nx" : 20,
   "ny" : 6,
   "map" : [

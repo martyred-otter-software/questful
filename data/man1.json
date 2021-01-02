@@ -1,0 +1,37 @@
+{
+  "collisionCenter" : [16, 48],
+  "collisionMask" : [[1]],
+  "speed" : 0,
+  "sprite": {
+    "stands": false,
+    "width": 32,
+    "height": 64,
+    "nRunFrames": 1,
+    "data": {
+      "ul": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "ur": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "dl": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "dr": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "u": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "l": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "d": [
+        "data/bitmaps/npc/man1.bmp"
+      ],
+      "r": [
+        "data/bitmaps/npc/man1.bmp"
+      ]
+    }
+  }
+}

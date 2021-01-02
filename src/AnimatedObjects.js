@@ -3,11 +3,15 @@ class AnimatedObject {
     this.x = x;
     this.y = y;
     this.dx = 0;
-    this.dy = 0;
+    this.dy = 0
+
+    this.data = allAnimatedObjectData[type];
+    this.type = type;
+
     this.sprites = allSprites[type];
-    this.spd = allAnimatedObjectData[type]['speed'];
-    this.ccx = allAnimatedObjectData[type]['collisionCenter'][0];
-    this.ccy = allAnimatedObjectData[type]['collisionCenter'][1];
+    this.spd = this.data['speed'];
+    this.ccx = this.data['collisionCenter'][0];
+    this.ccy = this.data['collisionCenter'][1];
     this.markedForDeletion = false;
   }
 }
@@ -15,11 +19,17 @@ class AnimatedObject {
 class Projectile extends AnimatedObject {
   constructor(x, y, dx, dy, type) {
     super(x, y, type);
+    if (norm(dx, dy) === 0) {
+      this.markedForDeletion = true;
+      return;
+    }
     this.travelAngle = Math.acos(dx / norm(dx, dy));
-    this.hx = allAnimatedObjectData[type]['projectileLength'] / 2 * dx / norm(dx, dy);
-    this.hy = allAnimatedObjectData[type]['projectileLength'] / 2 * dy / norm(dx, dy);
+    this.hx = this.data['projectileLength'] / 2 * dx / norm(dx, dy);
+    this.hy = this.data['projectileLength'] / 2 * dy / norm(dx, dy);
     this.dx = this.spd * dx / norm(dx, dy);
     this.dy = this.spd * dy / norm(dx, dy);
+    this.distanceTravelled = 0;
+    this.range = this.data['range'];
     if (dy < 0)
       this.travelAngle = 2 * Math.PI - this.travelAngle;
     let tempArray = ['r', 'dr', 'd', 'dl', 'l', 'ul', 'u', 'ur','r'];
@@ -50,6 +60,9 @@ class Projectile extends AnimatedObject {
         }
       }
     }
+    this.distanceTravelled += norm(this.dx, this.dy);
+    if (this.distanceTravelled >= this.range)
+      this.markedForDeletion = true;
   }
 
   draw() {
@@ -62,11 +75,11 @@ class Projectile extends AnimatedObject {
 class Character extends AnimatedObject {
   constructor(x, y, type) {
     super(x, y, type);
-    this.stands = allAnimatedObjectData[type]['sprite']['stands'];
-    this.nRunFrames = allAnimatedObjectData[type]['sprite']['nRunFrames'];
-    this.collisionMask = allAnimatedObjectData[type]['collisionMask'];
-    this.spriteWidth = allAnimatedObjectData[type]['sprite']['width'];
-    this.spriteHeight = allAnimatedObjectData[type]['sprite']['height'];
+    this.stands = this.data['sprite']['stands'];
+    this.nRunFrames = this.data['sprite']['nRunFrames'];
+    this.collisionMask = this.data['collisionMask'];
+    this.spriteWidth = this.data['sprite']['width'];
+    this.spriteHeight = this.data['sprite']['height'];
     this.stepCounter = 0;
     this.attacking = false;
     this.attackX = 0;
@@ -84,25 +97,27 @@ class Character extends AnimatedObject {
   }
 
   draw() {
+    if (this.type === 'man1')
+      console.log(this.dir);
     if (this.stands && this.dx === 0 && this.dy === 0)
-      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][this.nRunFrames])
+      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][this.nRunFrames]);
     else
-      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][Math.floor(this.stepCounter / FRAMES_PER_STEP)])
+      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][Math.floor(this.stepCounter / FRAMES_PER_STEP)]);
   }
 }
 
 class Player extends Character {
   constructor(x, y, type) {
     super(x, y, type);
-    this.attackDamage = allAnimatedObjectData[type]['attackDamage'];
-    this.attackRange = allAnimatedObjectData[type]['attackRange'];
-    this.attackArc = allAnimatedObjectData[type]['attackArcDeg'] * Math.PI / 180;
-    this.rx = allAnimatedObjectData[type]['rangedAttackOrigin'][0];
-    this.ry = allAnimatedObjectData[type]['rangedAttackOrigin'][1];
+    this.attackDamage = this.data['attackDamage'];
+    this.attackRange = this.data['attackRange'];
+    this.attackArc = this.data['attackArcDeg'] * Math.PI / 180;
+    this.rx = this.data['rangedAttackOrigin'][0];
+    this.ry = this.data['rangedAttackOrigin'][1];
     this.attackTimer = 0;
     this.attackDelay = 5;
     this.attackType = 'ranged';
-    this.maxHP = allAnimatedObjectData[type]['maxHP'];
+    this.maxHP = this.data['maxHP'];
     this.HP = 0.8 * this.maxHP;
   }
 
@@ -234,10 +249,10 @@ class Player extends Character {
 class Enemy extends Character {
   constructor(x, y, type) {
     super(x, y, type);
-    this.maxHP = allAnimatedObjectData[type]['maxHP'];
+    this.maxHP = this.data['maxHP'];
     this.HP = this.maxHP;
-    this.HPBarCenter = allAnimatedObjectData[type]['sprite']['HPBarCenter'];
-    this.HPBarWidth = allAnimatedObjectData[type]['sprite']['HPBarWidth'];
+    this.HPBarCenter = this.data['sprite']['HPBarCenter'];
+    this.HPBarWidth = this.data['sprite']['HPBarWidth'];
   }
 
   move() {
@@ -289,5 +304,15 @@ class Enemy extends Character {
       }
     }
     drawSprite(this.x, this.y, sx, sy, currentSprite);
+  }
+}
+
+class NPC extends Character {
+  constructor(x, y, type) {
+    super(x, y, type);
+  }
+
+  move() {
+    this.dir = 'd';
   }
 }

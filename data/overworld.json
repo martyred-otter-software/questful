@@ -41,6 +41,7 @@
       "data" : "data/orc.json"
     }
   ],
+  "npcs" : [],
 "nx" : 100,
 "ny" : 100,
 "map" : [
