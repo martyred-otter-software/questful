@@ -1,4 +1,5 @@
 body {
+  height: 100%;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -10,4 +11,54 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.home {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-align: center;
+}
+
+.homeContent {
+  position: absolute;
+  top: 150px;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+}
+
+.tabColumn {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.tabSelected {
+  height: 100%;
+  color: white;
+  background-color: black;
+}
+
+.tabUnselected {
+  height: 100%;
+  color: black;
+  background-color: white;
+}
+
+.tabHovered {
+  height: 100%;
+  color: black;
+  background-color: gray;
+}
+
+.contentPane {
+  width: 80%;
+  color: white;
+  background-color: black;
+  text-align: center;
 }
