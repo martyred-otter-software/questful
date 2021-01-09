@@ -175,7 +175,7 @@ async function init() {
 
 async function loadLZ(world) {
   if (global.localData) {
-    global.layoutData = require('./data/layout.json');
+    global.layoutData = require('../data/layout.json');
   } else {
     await fetch('data/layout.json')
       .then(response => response.json())
