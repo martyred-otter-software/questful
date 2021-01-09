@@ -1,3 +1,4 @@
-export default function Start() {
-  return <h1>Game launcher goes here</h1>
+export default function Start(props) {
+  const launch = () => props.callback("start");
+  return <button onClick={launch}>Launch game</button>
 }

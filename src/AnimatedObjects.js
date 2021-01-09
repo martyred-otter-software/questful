@@ -1,23 +1,27 @@
+import { norm, distance, collisionOk } from './Pathing';
+import { drawSprite } from './Graphics';
+import { global } from './main';
+
 class AnimatedObject {
   constructor(x, y, type) {
     this.x = x;
     this.y = y;
     this.dx = 0;
     this.dy = 0;
-    this.sprites = allSprites[type];
-    this.spd = allAnimatedObjectData[type]['speed'];
-    this.ccx = allAnimatedObjectData[type]['collisionCenter'][0];
-    this.ccy = allAnimatedObjectData[type]['collisionCenter'][1];
+    this.sprites = global.allSprites[type];
+    this.spd = global.allAnimatedObjectData[type]['speed'];
+    this.ccx = global.allAnimatedObjectData[type]['collisionCenter'][0];
+    this.ccy = global.allAnimatedObjectData[type]['collisionCenter'][1];
     this.markedForDeletion = false;
   }
 }
 
-class Projectile extends AnimatedObject {
+export class Projectile extends AnimatedObject {
   constructor(x, y, dx, dy, type) {
     super(x, y, type);
     this.travelAngle = Math.acos(dx / norm(dx, dy));
-    this.hx = allAnimatedObjectData[type]['projectileLength'] / 2 * dx / norm(dx, dy);
-    this.hy = allAnimatedObjectData[type]['projectileLength'] / 2 * dy / norm(dx, dy);
+    this.hx = global.allAnimatedObjectData[type]['projectileLength'] / 2 * dx / norm(dx, dy);
+    this.hy = global.allAnimatedObjectData[type]['projectileLength'] / 2 * dy / norm(dx, dy);
     this.dx = this.spd * dx / norm(dx, dy);
     this.dy = this.spd * dy / norm(dx, dy);
     if (dy < 0)
@@ -31,20 +35,20 @@ class Projectile extends AnimatedObject {
       return;
     this.x += this.dx;
     this.y += this.dy;
-    let hix = Math.floor((this.x + this.ccx + this.hx) / TILE_WIDTH);
-    let hiy = Math.floor((this.y + this.ccy + this.hy) / TILE_HEIGHT);
-    if (!tileData[tileMap[hiy][hix]]['passable']) {
+    let hix = Math.floor((this.x + this.ccx + this.hx) / global.TILE_WIDTH);
+    let hiy = Math.floor((this.y + this.ccy + this.hy) / global.TILE_HEIGHT);
+    if (!global.tileData[global.tileMap[hiy][hix]]['passable']) {
       this.markedForDeletion = true;
       return;
     }
-    for (let i = 0; i < enemies.length; i++) {
-      let e = enemies[i];
+    for (let i = 0; i < global.enemies.length; i++) {
+      let e = global.enemies[i];
       let hsx = this.x + this.ccx + this.hx - e.x;
       let hsy = this.y + this.ccy + this.hy - e.y;
       if (hsx >= 0 && hsx < e.spriteWidth && hsy >= 0 && hsy < e.spriteHeight){
-        if (e.sprites[e.dir][Math.floor(e.stepCounter / FRAMES_PER_STEP)].data[4 * (hsx + hsy * e.spriteWidth) + 3] !== 0) {
+        if (e.sprites[e.dir][Math.floor(e.stepCounter / global.FRAMES_PER_STEP)].data[4 * (hsx + hsy * e.spriteWidth) + 3] !== 0) {
           this.markedForDeletion = true;
-          e.HP -= player.attackDamage;
+          e.HP -= global.player.attackDamage;
           if (e.HP <= 0)
             e.markedForDeletion = true;
         }
@@ -54,7 +58,7 @@ class Projectile extends AnimatedObject {
 
   draw() {
     if (!this.markedForDeletion) {
-      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][0]);
+      drawSprite(this.x, this.y, global.sx, global.sy, this.sprites[this.dir][0]);
     }
   }
 }
@@ -62,11 +66,11 @@ class Projectile extends AnimatedObject {
 class Character extends AnimatedObject {
   constructor(x, y, type) {
     super(x, y, type);
-    this.stands = allAnimatedObjectData[type]['sprite']['stands'];
-    this.nRunFrames = allAnimatedObjectData[type]['sprite']['nRunFrames'];
-    this.collisionMask = allAnimatedObjectData[type]['collisionMask'];
-    this.spriteWidth = allAnimatedObjectData[type]['sprite']['width'];
-    this.spriteHeight = allAnimatedObjectData[type]['sprite']['height'];
+    this.stands = global.allAnimatedObjectData[type]['sprite']['stands'];
+    this.nRunFrames = global.allAnimatedObjectData[type]['sprite']['nRunFrames'];
+    this.collisionMask = global.allAnimatedObjectData[type]['collisionMask'];
+    this.spriteWidth = global.allAnimatedObjectData[type]['sprite']['width'];
+    this.spriteHeight = global.allAnimatedObjectData[type]['sprite']['height'];
     this.stepCounter = 0;
     this.attacking = false;
     this.attackX = 0;
@@ -75,34 +79,34 @@ class Character extends AnimatedObject {
   }
 
   move() {  // needs to be overridden by child class
-    let dir = DIRECTIONS[4 + this.dx / this.spd + 3 * this.dy / this.spd];
+    let dir = global.DIRECTIONS[4 + this.dx / this.spd + 3 * this.dy / this.spd];
     if (dir !== '0') {
       this.dir = dir;
       this.stepCounter++;
-      this.stepCounter %= this.nRunFrames * FRAMES_PER_STEP;
+      this.stepCounter %= this.nRunFrames * global.FRAMES_PER_STEP;
     }
   }
 
   draw() {
     if (this.stands && this.dx === 0 && this.dy === 0)
-      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][this.nRunFrames])
+      drawSprite(this.x, this.y, global.sx, global.sy, this.sprites[this.dir][this.nRunFrames])
     else
-      drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][Math.floor(this.stepCounter / FRAMES_PER_STEP)])
+      drawSprite(this.x, this.y, global.sx, global.sy, this.sprites[this.dir][Math.floor(this.stepCounter / global.FRAMES_PER_STEP)])
   }
 }
 
-class Player extends Character {
+export class Player extends Character {
   constructor(x, y, type) {
     super(x, y, type);
-    this.attackDamage = allAnimatedObjectData[type]['attackDamage'];
-    this.attackRange = allAnimatedObjectData[type]['attackRange'];
-    this.attackArc = allAnimatedObjectData[type]['attackArcDeg'] * Math.PI / 180;
-    this.rx = allAnimatedObjectData[type]['rangedAttackOrigin'][0];
-    this.ry = allAnimatedObjectData[type]['rangedAttackOrigin'][1];
+    this.attackDamage = global.allAnimatedObjectData[type]['attackDamage'];
+    this.attackRange = global.allAnimatedObjectData[type]['attackRange'];
+    this.attackArc = global.allAnimatedObjectData[type]['attackArcDeg'] * Math.PI / 180;
+    this.rx = global.allAnimatedObjectData[type]['rangedAttackOrigin'][0];
+    this.ry = global.allAnimatedObjectData[type]['rangedAttackOrigin'][1];
     this.attackTimer = 0;
     this.attackDelay = 5;
     this.attackType = 'ranged';
-    this.maxHP = allAnimatedObjectData[type]['maxHP'];
+    this.maxHP = global.allAnimatedObjectData[type]['maxHP'];
     this.HP = 0.8 * this.maxHP;
   }
 
@@ -116,19 +120,19 @@ class Player extends Character {
       deltaX -= Math.sign(deltaX);
     }
     this.x += deltaX;
-    let cx = this.x - sx;
-    if (cx < PADDING_SIZE && deltaX < 0) {
-      sx += deltaX;
-      if (sx < 0) {
-        this.x -= (deltaX - sx);
-        sx = 0;
+    let cx = this.x - global.sx;
+    if (cx < global.PADDING_SIZE && deltaX < 0) {
+      global.sx += deltaX;
+      if (global.sx < 0) {
+        this.x -= (deltaX - global.sx);
+        global.sx = 0;
       }
     }
-    if (cx + this.spriteWidth + PADDING_SIZE > window.innerWidth && deltaX > 0) {
-      sx += deltaX;
-      if (sx > TILE_WIDTH * mapWidth - window.innerWidth) {
-        this.x -= deltaX - (sx - (TILE_WIDTH * mapWidth - window.innerWidth));
-        sx = TILE_WIDTH * mapWidth - window.innerWidth;
+    if (cx + this.spriteWidth + global.PADDING_SIZE > window.innerWidth && deltaX > 0) {
+      global.sx += deltaX;
+      if (global.sx >global. TILE_WIDTH * global.mapWidth - window.innerWidth) {
+        this.x -= deltaX - (global.sx - (global.TILE_WIDTH * global.mapWidth - window.innerWidth));
+        global.sx = global.TILE_WIDTH * global.mapWidth - window.innerWidth;
       }
     }
     let deltaY = this.dy;
@@ -137,40 +141,40 @@ class Player extends Character {
     }
 
     this.y += deltaY;
-    let cy = this.y - sy;
-    if (cy < PADDING_SIZE && deltaY < 0) {
-      sy += deltaY;
-      if (sy < 0) {
-        this.y -= (deltaY - sy);
-        sy = 0;
+    let cy = this.y - global.sy;
+    if (cy < global.PADDING_SIZE && deltaY < 0) {
+      global.sy += deltaY;
+      if (global.sy < 0) {
+        this.y -= (deltaY - global.sy);
+        global.sy = 0;
       }
     }
-    if (cy + this.spriteHeight + PADDING_SIZE > viewableHeight && deltaY > 0) {
-      sy += deltaY;
-      if (sy > TILE_HEIGHT * mapHeight - viewableHeight) {
-        this.y -= deltaY - (sy - (TILE_HEIGHT * mapHeight - viewableHeight));
-        sy = TILE_HEIGHT * mapHeight - viewableHeight;
+    if (cy + this.spriteHeight + global.PADDING_SIZE > global.viewableHeight && deltaY > 0) {
+      global.sy += deltaY;
+      if (global.sy > global.TILE_HEIGHT * global.mapHeight - global.viewableHeight) {
+        this.y -= deltaY - (global.sy - (global.TILE_HEIGHT * global.mapHeight - global.viewableHeight));
+        global.sy = global.TILE_HEIGHT * global.mapHeight - global.viewableHeight;
       }
     }
-    for (let i = 0; i < loadingZones.length; i++) {
-      var ix = Math.floor((player.x + player.ccx) / TILE_WIDTH);
-      var iy = Math.floor((player.y + player.ccy) / TILE_HEIGHT);
-      if (ix === loadingZones[i]['ix'] && iy === loadingZones[i]['iy']) {
-        x0 = loadingZones[i]['x0'];
-        y0 = loadingZones[i]['y0'];
-        reloadLZ = true;
-        currentLZ = loadingZones[i]['destination'];
+    for (let i = 0; i < global.loadingZones.length; i++) {
+      var ix = Math.floor((global.player.x + global.player.ccx) / global.TILE_WIDTH);
+      var iy = Math.floor((global.player.y + global.player.ccy) / global.TILE_HEIGHT);
+      if (ix === global.loadingZones[i]['ix'] && iy === global.loadingZones[i]['iy']) {
+        global.x0 = global.loadingZones[i]['x0'];
+        global.y0 = global.loadingZones[i]['y0'];
+        global.reloadLZ = true;
+        global.currentLZ = global.loadingZones[i]['destination'];
       }
     }
   }
 
   draw() {
-    let sprite = ctx.createImageData(this.spriteWidth, this.spriteHeight);
+    let sprite = global.ctx.createImageData(this.spriteWidth, this.spriteHeight);
     for (let i = 0; i < 4 * this.spriteWidth * this.spriteHeight; i++) {
       if (this.stands && this.dx === 0 && this.dy === 0) {
         sprite.data[i] = this.sprites[this.dir][this.nRunFrames].data[i];
       } else {
-        sprite.data[i] = this.sprites[this.dir][Math.floor(this.stepCounter / FRAMES_PER_STEP)].data[i];
+        sprite.data[i] = this.sprites[this.dir][Math.floor(this.stepCounter / global.FRAMES_PER_STEP)].data[i];
       }
       if (this.attacking) {
         if (sprite.data[4 * Math.floor(i / 4) + 3] !== 0) {
@@ -178,7 +182,7 @@ class Player extends Character {
         }
       }
     }
-    drawSprite(this.x, this.y, sx, sy, sprite);
+    drawSprite(this.x, this.y, global.sx, global.sy, sprite);
   }
 
   attack() {
@@ -192,8 +196,8 @@ class Player extends Character {
   }
 
   meleeAttack() {
-    for (let i = 0; i < enemies.length; i++) {
-      let enemy = enemies[i];
+    for (let i = 0; i < global.enemies.length; i++) {
+      let enemy = global.enemies[i];
       let sepX = enemy.x + enemy.ccx - (this.x + this.ccx);
       let sepY = enemy.y + enemy.ccy - (this.y + this.ccy);
       let dist = distance(this.x + this.ccx, this.y + this.ccy, enemy.x + enemy.ccx, enemy.y + enemy.ccy)
@@ -227,26 +231,26 @@ class Player extends Character {
   }
 
   rangedAttack(){
-    animatedObjects.push(new Projectile(this.x + this.rx, this.y + this.ry, this.attackX, this.attackY, 'playerRangedAttack'));
+    global.animatedObjects.push(new Projectile(this.x + this.rx, this.y + this.ry, this.attackX, this.attackY, 'playerRangedAttack'));
   }
 }
 
-class Enemy extends Character {
+export class Enemy extends Character {
   constructor(x, y, type) {
     super(x, y, type);
-    this.maxHP = allAnimatedObjectData[type]['maxHP'];
+    this.maxHP = global.allAnimatedObjectData[type]['maxHP'];
     this.HP = this.maxHP;
-    this.HPBarCenter = allAnimatedObjectData[type]['sprite']['HPBarCenter'];
-    this.HPBarWidth = allAnimatedObjectData[type]['sprite']['HPBarWidth'];
+    this.HPBarCenter = global.allAnimatedObjectData[type]['sprite']['HPBarCenter'];
+    this.HPBarWidth = global.allAnimatedObjectData[type]['sprite']['HPBarWidth'];
   }
 
   move() {
     super.move();
     if (this.markedForDeletion)
       return;
-    if (distance(this.x, this.y, player.x, player.y) < AGGRO_RANGE) {
-      this.dx = Math.min(this.spd, Math.abs(player.x - this.x)) * Math.sign(player.x - this.x);
-      this.dy = Math.min(this.spd, Math.abs(player.y - this.y)) * Math.sign(player.y - this.y);
+    if (distance(this.x, this.y, global.player.x, global.player.y) < global.AGGRO_RANGE) {
+      this.dx = Math.min(this.spd, Math.abs(global.player.x - this.x)) * Math.sign(global.player.x - this.x);
+      this.dy = Math.min(this.spd, Math.abs(global.player.y - this.y)) * Math.sign(global.player.y - this.y);
     } else {
       this.dx = 0;
       this.dy = 0;
@@ -273,7 +277,7 @@ class Enemy extends Character {
     if (this.stands && this.dx === 0 && this.dy === 0)
       currentSprite = this.sprites[this.dir][this.nRunFrames];
     else
-      currentSprite = this.sprites[this.dir][Math.floor(this.stepCounter / FRAMES_PER_STEP)];
+      currentSprite = this.sprites[this.dir][Math.floor(this.stepCounter / global.FRAMES_PER_STEP)];
     for (let i = 0; i < this.HPBarWidth; i++) {
       let c = this.HPBarCenter - this.HPBarWidth / 2 + i;
       for (let j = 0; j < 5; j++) {
@@ -288,6 +292,6 @@ class Enemy extends Character {
         currentSprite.data[4 * (this.spriteWidth * j + c) + 3] = 255;
       }
     }
-    drawSprite(this.x, this.y, sx, sy, currentSprite);
+    drawSprite(this.x, this.y, global.sx, global.sy, currentSprite);
   }
 }
