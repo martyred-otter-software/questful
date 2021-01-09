@@ -1,0 +1,21 @@
+{
+  "speed" : 15,
+  "projectileLength" : 32,
+  "collisionCenter" : [16,16],
+  "sprite" : {
+    "width" : 32,
+    "height" : 32,
+    "nRunFrames" : 1,
+    "stands" : false,
+    "data" : {
+      "u": ["data/bitmaps/playerRangedAttack/u.bmp"],
+      "d": ["data/bitmaps/playerRangedAttack/u.bmp"],
+      "r": ["data/bitmaps/playerRangedAttack/r.bmp"],
+      "l": ["data/bitmaps/playerRangedAttack/r.bmp"],
+      "ur" : ["data/bitmaps/playerRangedAttack/ur.bmp"],
+      "dl" : ["data/bitmaps/playerRangedAttack/ur.bmp"],
+      "dr" : ["data/bitmaps/playerRangedAttack/dr.bmp"],
+      "ul" : ["data/bitmaps/playerRangedAttack/dr.bmp"]
+    }
+  }
+}
