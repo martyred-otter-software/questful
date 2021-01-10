@@ -21,6 +21,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.eslintcache
 
-/data/bitmaps/useful_images
+/src/data/bitmaps/useful_images
 /.idea
