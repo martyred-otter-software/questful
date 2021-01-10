@@ -31,6 +31,7 @@ var loadingZones;
 var vertices = [];
 var edges = [];
 var paths = [];
+var myId = "";
 
 var allAnimatedObjectData = {};
 var allSprites = {};
@@ -38,6 +39,7 @@ var allSprites = {};
 var animatedObjects;
 var enemies;
 var player;
+var allies = [];
 var enemyList;
 var npcList;
 
@@ -113,6 +115,8 @@ init().then(() => {
 });
 
 async function init() {
+  registerWithAPI();
+  myId = getId();
   for (let c = 0; c < ANIMATED_OBJECT_TYPES.length; c++) {
     let ch = ANIMATED_OBJECT_TYPES[c];
 
