@@ -97,8 +97,6 @@ class Character extends AnimatedObject {
   }
 
   draw() {
-    if (this.type === 'man1')
-      console.log(this.dir);
     if (this.stands && this.dx === 0 && this.dy === 0)
       drawSprite(this.x, this.y, sx, sy, this.sprites[this.dir][this.nRunFrames]);
     else
@@ -243,6 +241,16 @@ class Player extends Character {
 
   rangedAttack(){
     animatedObjects.push(new Projectile(this.x + this.rx, this.y + this.ry, this.attackX, this.attackY, 'playerRangedAttack'));
+  }
+}
+
+class Ally extends Character {
+  constructor(x, y, type, id) {
+    super(x, y, type);
+    this.id = id;
+  }
+  draw() {
+    drawSprite(this.x, this.y, sx, sy, this.sprites['d'][0]);
   }
 }
 
