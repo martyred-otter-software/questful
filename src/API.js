@@ -16,25 +16,28 @@ function getId() {
   while (!foundValidId) {
     foundValidId = true;
     for (let i = 0; i < allies.length; i++) {
-      if (idCandidate.toString() === allies[i].id) {
+      if (idCandidate.toString() === allies[i].id) {s
         foundValidId = false;
         break;
       }
     }
     idCandidate++;
   }
-  return idCandidate.toString();
+  //return idCandidate.toString();
+  return "2";
 }
 
 function updatePlayerList(playerInfo) {
   console.log(playerInfo['playerId']);
+  let addNewPlayer = true;
   for (let pIdx = 0; pIdx < allies.length; pIdx++) {
     if (playerInfo['playerId'] === allies[pIdx].id) {
       allies[pIdx].x = playerInfo['x'];
       allies[pIdx].y = playerInfo['y'];
+      addNewPlayer = false;
     }
   }
-  if (playerInfo['playerId'] !== myId) {
+  if (playerInfo['playerId'] !== myId && addNewPlayer) {
     allies.push(new Ally(playerInfo['x'], playerInfo['y'], 'player', playerInfo['playerId']));
     animatedObjects.push(allies[allies.length - 1]);
   }
