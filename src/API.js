@@ -24,7 +24,7 @@ function getId() {
     idCandidate++;
   }
   //return idCandidate.toString();
-  return Date().toString();
+  return Date.now().toString();
 }
 
 function updatePlayerList(playerInfo) {
@@ -34,7 +34,7 @@ function updatePlayerList(playerInfo) {
   if (allies[playerInfo['playerId']]) {
     allies[playerInfo['playerId']].x = playerInfo['x'];
     allies[playerInfo['playerId']].y = playerInfo['y'];
-  } else {
+  } else if (animatedObjects) {
     allies[playerInfo['playerId']] = new Ally(playerInfo['x'], playerInfo['y'], 'player');
     animatedObjects.push(allies[playerInfo['playerId']]);
   }
