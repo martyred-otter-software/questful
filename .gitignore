@@ -8,3 +8,4 @@ dist
 lib/
 data/bitmaps/useful_images/
 src/data
+/lib/
