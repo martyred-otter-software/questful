@@ -24,22 +24,19 @@ function getId() {
     idCandidate++;
   }
   //return idCandidate.toString();
-  return "2";
+  return Date().toString();
 }
 
 function updatePlayerList(playerInfo) {
   console.log(playerInfo['playerId']);
-  let addNewPlayer = true;
-  for (let pIdx = 0; pIdx < allies.length; pIdx++) {
-    if (playerInfo['playerId'] === allies[pIdx].id) {
-      allies[pIdx].x = playerInfo['x'];
-      allies[pIdx].y = playerInfo['y'];
-      addNewPlayer = false;
-    }
-  }
-  if (playerInfo['playerId'] !== myId && addNewPlayer) {
-    allies.push(new Ally(playerInfo['x'], playerInfo['y'], 'player', playerInfo['playerId']));
-    animatedObjects.push(allies[allies.length - 1]);
+  if (playerInfo['playerId'] === myId)
+    return;
+  if (allies[playerInfo['playerId']]) {
+    allies[playerInfo['playerId']].x = playerInfo['x'];
+    allies[playerInfo['playerId']].y = playerInfo['y'];
+  } else {
+    allies[playerInfo['playerId']] = new Ally(playerInfo['x'], playerInfo['y'], 'player');
+    animatedObjects.push(allies[playerInfo['playerId']]);
   }
 }
 

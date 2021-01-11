@@ -39,7 +39,7 @@ var allSprites = {};
 var animatedObjects;
 var enemies;
 var player;
-var allies = [];
+var allies = {};
 var enemyList;
 var npcList;
 
@@ -105,8 +105,8 @@ init().then(() => {
   });
 
   window.addEventListener("mousedown", function (e) {
-    player.attackX = e.offsetX - (player.x + player.ccx) + sx;
-    player.attackY = e.offsetY - (player.y + player.ccy) + sy;
+    player.attackX = e.offsetX - (player.x + player.rx) + sx;
+    player.attackY = e.offsetY - (player.y + player.ry) + sy;
     player.attacking = true;
   });
 

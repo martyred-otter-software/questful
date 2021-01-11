@@ -245,9 +245,8 @@ class Player extends Character {
 }
 
 class Ally extends Character {
-  constructor(x, y, type, id) {
+  constructor(x, y, type) {
     super(x, y, type);
-    this.id = id;
   }
   draw() {
     drawSprite(this.x, this.y, sx, sy, this.sprites['d'][0]);
