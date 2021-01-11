@@ -43,7 +43,7 @@ class Projectile extends AnimatedObject {
     this.y += this.dy;
     let hix = Math.floor((this.x + this.ccx + this.hx) / TILE_WIDTH);
     let hiy = Math.floor((this.y + this.ccy + this.hy) / TILE_HEIGHT);
-    if (!tileData[tileMap[hiy][hix]]['passable']) {
+    if (hix < 0 || hiy < 0 || hix >= mapWidth || hiy >= mapHeight || !tileData[tileMap[hiy][hix]]['passable']) {
       this.markedForDeletion = true;
       return;
     }

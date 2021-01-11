@@ -41,7 +41,7 @@ function updatePlayerList(playerInfo) {
 }
 
 function sendPlayerInfo(playerObject) {
-  stompClient.send(JSON.stringify({
+  stompClient.send("/app/position", {}, JSON.stringify({
     'playerId': myId,
     'x': playerObject.x,
     'y': playerObject.y
