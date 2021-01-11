@@ -173,6 +173,7 @@ async function loadLZ(world) {
     });
 
   animatedObjects = [];
+  allies = {};
   enemies = [];
   player = new Player(x0, y0, 'player')
   animatedObjects.push(player);
