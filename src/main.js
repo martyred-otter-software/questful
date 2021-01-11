@@ -69,6 +69,7 @@ init().then(() => {
             if (animatedObjects[i].markedForDeletion)
               animatedObjects.splice(i--,1);
           }
+          sendPlayerInfo(player);
           drawBG(sx, sy);
           drawHUD(player);
           for (let i = 0; i < animatedObjects.length; i++)
