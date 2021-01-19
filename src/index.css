@@ -48,6 +48,14 @@ code {
   text-align: center;
 }
 
+.row {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+}
+
 .tabColumn {
   display: flex;
   flex-direction: column;

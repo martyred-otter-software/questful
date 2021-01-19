@@ -51,7 +51,7 @@ export var global = {
   reloadLZ: true,
   gameLoop: null,
 
-  localData: true,
+  localData: false,
   time: null
 }
 
@@ -98,7 +98,7 @@ function game(canvas) {
               global.animatedObjects[i].draw();
             let newTime = new Date();
             global.ctx.strokeStyle = "#FFFFFF";
-            global.ctx.strokeText(1000/(newTime - global.time), 10, 10);
+            global.ctx.strokeText(1000 / (newTime - global.time), 10, 10);
             global.time = newTime;
           }, global.delay);
         });
@@ -143,15 +143,11 @@ function game(canvas) {
 async function init() {
   for (let c = 0; c < global.ANIMATED_OBJECT_TYPES.length; c++) {
     let ch = global.ANIMATED_OBJECT_TYPES[c];
-    if (global.localData) {
-      global.allAnimatedObjectData[ch] = require('./data/' + ch + '.json');
-    } else {
-      await fetch(ch + '.json')
-        .then(response => response.json())
-        .then((data) => {
-          global.allAnimatedObjectData[ch] = data;
-        });
-    }
+    await fetch(ch + '.json')
+      .then(response => response.json())
+      .then((data) => {
+        global.allAnimatedObjectData[ch] = data;
+      });
     global.allSprites[ch] = {};
     for (let id = 0; id < global.DIRECTIONS.length; id++) {
       let dir = global.DIRECTIONS[id];
@@ -174,49 +170,28 @@ async function init() {
 }
 
 async function loadLZ(world) {
-  if (global.localData) {
-    global.layoutData = require('./data/layout.json');
-  } else {
-    await fetch('data/layout.json')
-      .then(response => response.json())
-      .then((data) => global.layoutData = data);
-  }
+  await fetch('data/layout.json')
+    .then(response => response.json())
+    .then((data) => global.layoutData = data);
   global.HUDHeight = global.layoutData['HUD']['height'];
   global.viewableHeight = window.innerHeight - global.HUDHeight;
-  if (global.localData) {
-    await readFileData('./' + global.layoutData['HUD']['BGImg'])
-      .then((data) =>
-        global.HUDBG = BMPData2Sprite(data, window.innerWidth, global.HUDHeight)
-      );
-  } else {
-    await fetch('./' + global.layoutData['HUD']['BGImg'])
-      .then(response => response.arrayBuffer())
-      .then((data) =>
-        global.HUDBG = BMPData2Sprite(data, window.innerWidth, global.HUDHeight)
-      );
-  }
-  if (global.localData) {
-    let data = require('./' + world);
-    global.mapWidth = data['nx'];
-    global.mapHeight = data['ny'];
-    global.tileData = data['tiles'];
-    global.tileMap = data['map'];
-    global.numTiles = data['nTiles'];
-    global.enemyList = data['enemies'];
-    global.loadingZones = data['loadingZones'];
-  } else {
-    await fetch(world)
-      .then(response => response.json())
-      .then((data) => {
-        global.mapWidth = data['nx'];
-        global.mapHeight = data['ny'];
-        global.tileData = data['tiles'];
-        global.tileMap = data['map'];
-        global.numTiles = data['nTiles'];
-        global.enemyList = data['enemies'];
-        global.loadingZones = data['loadingZones'];
-      });
-  }
+  await fetch('./' + global.layoutData['HUD']['BGImg'])
+    .then(response => response.arrayBuffer())
+    .then((data) =>
+      global.HUDBG = BMPData2Sprite(data, window.innerWidth, global.HUDHeight)
+    );
+
+  await fetch(world)
+    .then(response => response.json())
+    .then((data) => {
+      global.mapWidth = data['nx'];
+      global.mapHeight = data['ny'];
+      global.tileData = data['tiles'];
+      global.tileMap = data['map'];
+      global.numTiles = data['nTiles'];
+      global.enemyList = data['enemies'];
+      global.loadingZones = data['loadingZones'];
+    });
 
   global.animatedObjects = [];
   global.enemies = [];

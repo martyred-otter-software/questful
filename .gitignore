@@ -23,5 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 .eslintcache
 
-/src/data/bitmaps/useful_images
+/public/data/bitmaps/useful_images
 /.idea

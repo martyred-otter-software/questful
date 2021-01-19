@@ -1,125 +1,35 @@
-import {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useContext} from 'react';
+import TileSet from './TileSet';
+import CellGrid, {Cell, CellDraw} from './CellGrid';
+import {ChromePicker} from 'react-color';
+
+const SIZE = 64;
+export const TileSetContainer = React.createContext(null);
 
 export default function Editor() {
-  const [imgBitmap, setImgBitmap] = useState(null);
-  return <>
-    <CellGrid width={20} height={5} cellSize={64} bmp={imgBitmap}/> <BitmapEditor w={64} h={64} scale={6}
-                                                                                  sendImgBitmap={(bmp) => setImgBitmap(bmp)}/>
-  </>;
+  const [tileSet, setTileSet] = useState(new TileSet(SIZE));
+  return <TileSetContainer.Provider value={tileSet}>
+    <CellGrid width={20} height={5} cellSize={SIZE}/>
+    <div className="row">
+      <BitmapEditor w={SIZE} h={SIZE} scale={6} sendImgBitmap={(bmp) => {
+        let newImgData = new ImageData(SIZE, SIZE);
+        for (let i = 0; i < bmp.length; i++)
+          newImgData.data[i] = bmp[i];
+        let temp = new TileSet(SIZE);
+        temp.set(tileSet);
+        temp.updateCurrentTile(newImgData);
+        setTileSet(temp);
+      }}/>
+      <ChromePicker/><TileSelector width={8} height={4} cellSize={SIZE}/>
+    </div>
+  </TileSetContainer.Provider>;
 }
 
-function CellGrid({width, height, cellSize, bmp}) {
-  let temp = [];
-  let temp2 = [];
-  for (let i = 0; i < height; i++) {
-    temp.push([]);
-    temp2.push([]);
-    for (let j = 0; j < width; j++) {
-      temp[i].push(null);
-      temp2[i].push(new CellDraw(cellSize));
-    }
-  }
-  const [cellArray, setCellArray] = useState(temp);
-  const [cellDrawMap, setCellDrawMap] = useState(temp2);
-  const [dragging, setDragging] = useState(false);
-  const [currentCell, setCurrentCell] = useState(null);
-  const populate = (loc, cellRef) => {
-    let temp = cellArray;
-    temp[loc[0]][loc[1]] = cellRef;
-    setCellArray(temp);
-  };
-  useEffect(() => {
-    document.addEventListener('mousemove', (e) => {
-      if (currentCell && currentCell.current.contains(e.target))
-        return;
-      let noCellsSelected = true;
-      cellArray.forEach((cellRow) => {
-        cellRow.forEach((cell) => {
-          if (cell && cell.current.contains(e.target)) {
-            setCurrentCell(cell);
-            noCellsSelected = false;
-          }
-        })
-      })
-      if (noCellsSelected)
-        setCurrentCell(null);
-    });
-    document.addEventListener('mouseleave', (e) => {
-      setCurrentCell(null);
-    });
-    document.addEventListener('mousedown', (e) => {
-      setDragging(true);
-    })
-    document.addEventListener('mouseup', (e) => {
-      setDragging(false);
-    })
-  }, []);
 
-  useEffect(() => {
-    if (dragging) {
-      cellArray.forEach((cellRow, i) => {
-        cellRow.forEach((cell, j) => {
-          if (cell == currentCell) {
-            let temp2 = cellDrawMap;
-            if (temp2[i][j].unselectedColor !== "#0000ff") {
-              temp2[i][j].unselectedColor = "#0000ff";
-              setCellDrawMap(temp2);
-            }
-          }
-        })
-      })
-    }
-  }, [currentCell, dragging]);
-  return <div className="cellGrid">{cellArray.map((cellRow, i) => {
-    return <div key={i} className="cellRow">{cellRow.map((cell, j) => {
-      return <Cell key={[i, j]} className="cell" loc={[i, j]} populate={populate} currentCell={currentCell}
-                   cellMap={cellDrawMap} size={cellSize} bmp={bmp}/>
-    })}</div>
-  })}</div>;
-}
-
-function Cell({loc, populate, currentCell, cellMap, size, bmp}) {
-  const [selected, setSelected] = useState(false);
-  const thisComponent = useRef();
-  useEffect(() => {
-    populate(loc, thisComponent);
-  }, []);
-  useEffect(() => {
-    setSelected(thisComponent === currentCell);
-  }, [currentCell]);
-  useEffect(() => {
-    let ctx = thisComponent.current.getContext('2d');
-    cellMap[loc[0]][loc[1]].draw(ctx, selected, bmp);
-  }, [selected, bmp])
-  return <canvas ref={thisComponent} width={size} height={size}/>;
-}
-
-class CellDraw {
-  constructor(s) {
-    this.selectedColor = "#00ff00";
-    this.unselectedColor = "#ff0000";
-    this.s = s;
-    this.draw = (ctx, selected, bmp) => {
-      let currentColor = selected ? this.selectedColor : this.unselectedColor;
-      if (bmp && currentColor !== "#ff0000") {
-        //if (false) {
-        let tempImgData = ctx.createImageData(this.s, this.s);
-        for (let i = 0; i < tempImgData.data.length; i++) {
-          tempImgData.data[i] = bmp[i];
-          if (selected && i % 4 === 3)
-            tempImgData.data[i] = 100;
-        }
-        ctx.putImageData(tempImgData, 0, 0);
-      } else {
-        ctx.fillStyle = currentColor;
-        ctx.fillRect(0, 0, this.s, this.s)
-      }
-    };
-  }
-}
 
 function BitmapEditor({w, h, scale, sendImgBitmap}) {
   const thisBitmap = useRef();
+  const tileSet = useContext(TileSetContainer);
   const [imgData, setImgData] = useState(null);
   const [curRow, setCurRow] = useState(-1);
   const [curCol, setCurCol] = useState(-1);
@@ -127,9 +37,8 @@ function BitmapEditor({w, h, scale, sendImgBitmap}) {
 
   useEffect(() => {
     let ctx = thisBitmap.current.getContext('2d');
-    ctx.fillStyle = "#ff0000";
-    ctx.fillRect(0, 0, w * scale, h * scale);
-    setImgData(ctx.getImageData(0, 0, w * scale, h * scale));
+    let tmpImgData = dilateAndDraw(tileSet.getCurrentTile(), w, h, scale, ctx);
+    setImgData(tmpImgData);
     document.addEventListener('mousemove', (e) => {
       if (!thisBitmap.current.contains(e.target)) {
         setCurCol(-1);
@@ -138,7 +47,6 @@ function BitmapEditor({w, h, scale, sendImgBitmap}) {
       }
       let newCol = Math.floor((e.pageX - thisBitmap.current.getBoundingClientRect().left) / scale);
       let newRow = Math.floor((e.pageY - thisBitmap.current.getBoundingClientRect().top) / scale);
-      console.log(newCol, newRow);
       if (newRow === curRow && newCol === curCol)
         return;
       setCurRow(newRow);
@@ -182,3 +90,43 @@ function BitmapEditor({w, h, scale, sendImgBitmap}) {
     <canvas ref={thisBitmap} width={w * scale} height={h * scale}/>
   </>
 }
+
+function dilateAndDraw(imgData, w, h, scale, ctx) {
+  for (let i = 0; i < imgData.data.length / 4; i++) {
+    ctx.fillStyle = "#" + imgData.data[i * 4].toString(16)
+      + imgData.data[i * 4 + 1].toString(16) + imgData.data[i * 4 + 2].toString(16);
+    let x = scale * (i % w);
+    let y = scale * Math.floor(i / w);
+    ctx.fillRect(x, y, scale, scale);
+  }
+  return ctx.getImageData(0, 0, w * scale, h * scale);
+}
+
+
+
+function TileSelector({width, height, cellSize}) {
+  const tileSet = useContext(TileSetContainer);
+  const [tileGrid, setTileGrid] = useState(null);
+  let temp = [];
+  let temp2 = [];
+  for (let i = 0; i < height; i++) {
+    temp.push([]);
+    temp2.push([]);
+    for (let j = 0; j < width; j++) {
+      temp[i].push(null);
+      temp2[i].push(new CellDraw(cellSize));
+    }
+  }
+
+  useEffect(() => {
+    let temp = tileGrid;
+    tileSet.tiles.forEach((tile, idx) => {
+      let x = (idx - 1) % width;
+      let y = Math.floor((idx - 1) / width);
+      temp[y][x] = tile;
+    });
+    setTileGrid(temp);
+  }, [tileSet]);
+  return <></>
+}
+
