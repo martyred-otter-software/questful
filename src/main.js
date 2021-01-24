@@ -4,7 +4,7 @@ const PADDING_SIZE = 256;
 const FRAMES_PER_STEP = 3;
 const delay = 25; // ms delay
 const DIRECTIONS = ['ul', 'u', 'ur', 'l', '0', 'r', 'dl', 'd', 'dr'];
-const AGGRO_RANGE = 1000;
+const AGGRO_RANGE = Infinity;
 const ANIMATED_OBJECT_TYPES = ['player', 'orc', 'man1', 'playerRangedAttack'];
 
 let c = document.getElementById("myCanvas");
@@ -28,9 +28,7 @@ var numTiles;
 var tiles;
 var loadingZones;
 
-var vertices = [];
-var edges = [];
-var paths = [];
+var baseGraph = [];
 var myId = "";
 
 var allAnimatedObjectData = {};
@@ -48,6 +46,8 @@ var x0 = 128;
 var y0 = 128;
 var reloadLZ = true;
 var gameLoop;
+var currentPath;
+var currentPaths2 = [];
 
 init().then(() => {
   window.setInterval(function () {
@@ -74,7 +74,34 @@ init().then(() => {
           drawHUD(player);
           for (let i = 0; i < animatedObjects.length; i++)
             animatedObjects[i].draw();
+          ctx.fillStyle = "#ff0000";
+          for (let i = 0; i < baseGraph.vertices.length; i++) {
+            ctx.fillRect(baseGraph.vertices[i].x - sx, baseGraph.vertices[i].y - sy, 4, 4);
+          }
+          if (enemies[0])
+            ctx.fillRect(enemies[0].x + enemies[0].ccx - sx, enemies[0].y + enemies[0].ccy - sy, 5, 5);
           ctx.strokeStyle = "#ffffff";
+          for (let i = 0; i < baseGraph.edges.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(baseGraph.edges[i].v1.x - sx, baseGraph.edges[i].v1.y - sy);
+            ctx.lineTo(baseGraph.edges[i].v2.x - sx, baseGraph.edges[i].v2.y - sy);
+            ctx.stroke();
+          }
+          if (currentPath) {
+            ctx.strokeStyle = "#ffff00";
+            ctx.beginPath();
+            ctx.moveTo(currentPath.v1.x - sx, currentPath.v1.y - sy);
+            ctx.lineTo(currentPath.v2.x - sx, currentPath.v2.y - sy);
+            ctx.stroke();
+          }
+          for (let i=0; i < currentPaths2.length; i++) {
+            let currentPath2 = currentPaths2[i];
+            ctx.strokeStyle = "#00ffff";
+            ctx.beginPath();
+            ctx.moveTo(currentPath2.v1.x - sx, currentPath2.v1.y - sy);
+            ctx.lineTo(currentPath2.v2.x - sx, currentPath2.v2.y - sy);
+            ctx.stroke();
+          }
           ctx.strokeText(animatedObjects.length, 10, 10);
         }, delay);
       });
@@ -105,9 +132,13 @@ init().then(() => {
   });
 
   window.addEventListener("mousedown", function (e) {
-    player.attackX = e.offsetX - (player.x + player.rx) + sx;
-    player.attackY = e.offsetY - (player.y + player.ry) + sy;
-    player.attacking = true;
+    player.setAttacking(e.offsetX, e.offsetY);
+  });
+
+  window.addEventListener("mousemove", (e) => {
+    if (player.attacking) {
+      player.setAttacking(e.offsetX, e.offsetY);
+    }
   });
 
   window.addEventListener("mouseup", function (e) {
@@ -204,8 +235,8 @@ async function loadLZ(world) {
   mapWidth = tileMap[0].length;
   mapHeight = tileMap.length;
 
-  vertices = computeVertices();
-  edges = computeEdges(vertices);
-
+  let vertices = computeVertices();
+  let edges = computeEdges(vertices);
+  baseGraph = new Graph(edges, vertices);
 }
 

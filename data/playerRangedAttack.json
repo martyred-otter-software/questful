@@ -1,5 +1,5 @@
 {
-  "speed" : 15,
+  "speed" : 25,
   "range" : 750,
   "projectileLength" : 32,
   "collisionCenter" : [16,16],
