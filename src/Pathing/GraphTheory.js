@@ -24,7 +24,9 @@ class Vertex {
       return isLineOfSight(this.x, this.y, otherV.x, otherV.y);
     else
       return isLineOfSight(this.x, this.y, otherV.x, otherV.y)
-        && isLineOfSight(otherV.x, otherV.y, this.x, this.y);
+        && isLineOfSight(otherV.x, otherV.y, this.x, this.y)
+        && isLineOfSight(this.x+3, this.y, otherV.x+3, otherV.y)
+        && isLineOfSight(otherV.x, otherV.y+3, this.x, this.y+3);
   }
 }
 
@@ -119,13 +121,13 @@ function computeVertices() {
         let dx;
         let dy;
         if (!tileData[tileMap[j][i - 1]]['passable'] || !tileData[tileMap[j - 1][i - 1]]['passable'])
-          dx = 28;
+          dx = 10;
         else
-          dx = -29;
+          dx = -11;
         if (!tileData[tileMap[j - 1][i]]['passable'] || !tileData[tileMap[j - 1][i - 1]]['passable'])
-          dy = 28;
+          dy = 10;
         else
-          dy = -29;
+          dy = -11;
         result.push(new Vertex(TILE_WIDTH * i + dx, TILE_HEIGHT * j + dy));
       }
     }
