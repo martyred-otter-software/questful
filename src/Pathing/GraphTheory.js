@@ -84,7 +84,7 @@ function dijkstra(graph, source) {
   dist[source.toString()] = 0;
   let Q = new Array(...graph.vertices);
   while (Q.length > 0) {
-    let uIdx = -1;
+    let uIdx = NaN;
     let u = Q.reduce((min, q, i) => {
       if (min === undefined) {
         uIdx = i;
@@ -98,9 +98,9 @@ function dijkstra(graph, source) {
       }
     });
     Q.splice(uIdx, 1);
-    graph.vertices.forEach((v) => {
+    Q.forEach((v) => {
       let curEdge = new Edge(u, v);
-      if (graph.edgeMap[curEdge.toString()] !== undefined) {
+      if (graph.edgeMap[curEdge.toString()]) {
         let alt = dist[u.toString()] + curEdge.distance();
         if (alt < dist[v.toString()]) {
           dist[v.toString()] = alt;
