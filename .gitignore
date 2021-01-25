@@ -6,6 +6,6 @@ dist
 .cache
 .idea/
 lib/
-data/bitmaps/useful_images/
+public/data/bitmaps/useful_images/
 src/data
 /lib/
