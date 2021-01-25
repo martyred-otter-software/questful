@@ -86,11 +86,10 @@ function dijkstra(graph, source) {
   while (Q.length > 0) {
     let uIdx = NaN;
     let u = Q.reduce((min, q, i) => {
-      if (min === undefined) {
+      if (!min) {
         uIdx = i;
         return q;
-      }
-      if (dist[min.toString()] < dist[q.toString()]) {
+      } else if (dist[min.toString()] < dist[q.toString()]) {
         return min;
       } else {
         uIdx = i;
