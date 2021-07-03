@@ -72,7 +72,6 @@ init().then(() => {
           }
           sendPlayerInfo(player);
           drawBG(sx, sy);
-          drawHUD(player);
           for (let i = 0; i < animatedObjects.length; i++)
             animatedObjects[i].draw();
           if (DEBUG) {
@@ -105,6 +104,7 @@ init().then(() => {
               ctx.stroke();
             }
             ctx.strokeText(animatedObjects.length, 10, 10);
+            drawHUD(player);
           }
         }, delay);
       });
