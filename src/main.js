@@ -6,7 +6,7 @@ const delay = 25; // ms delay
 const DIRECTIONS = ['ul', 'u', 'ur', 'l', '0', 'r', 'dl', 'd', 'dr'];
 const AGGRO_RANGE = Infinity;
 const ANIMATED_OBJECT_TYPES = ['player', 'orc', 'man1', 'playerRangedAttack'];
-const DEBUG = false;
+const DEBUG = true;
 
 let c = document.getElementById("myCanvas");
 let ctx = c.getContext("2d");
@@ -152,7 +152,11 @@ init().then(() => {
 async function init() {
   ctx.fillStyle = "#00ff00";
   ctx.font = "30px Arial";
-  ctx.fillText("Loading...", 10, 50); 
+  if (DEBUG) {
+    ctx.fillText("Loading...", 10, 50); 
+  } else {
+    ctx.fillText("Loading... Debug/Demo Lines Enabled", 10, 50);
+  }
   registerWithAPI();
   myId = getId();
   for (let c = 0; c < ANIMATED_OBJECT_TYPES.length; c++) {
