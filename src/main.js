@@ -104,8 +104,8 @@ init().then(() => {
               ctx.stroke();
             }
             ctx.strokeText(animatedObjects.length, 10, 10);
-            drawHUD(player);
           }
+          drawHUD(player);
         }, delay);
       });
       reloadLZ = false;
