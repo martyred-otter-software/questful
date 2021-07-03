@@ -183,6 +183,9 @@ async function init() {
 }
 
 async function loadLZ(world) {
+  ctx.fillStyle = "#00ff00";
+  ctx.font = "30px Arial";
+  ctx.fillText("Loading...", 10, 50); 
   await fetch('data/layout.json')
     .then(response => response.json())
     .then((data) => layoutData = data);
