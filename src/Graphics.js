@@ -91,7 +91,7 @@ function drawSprite(x, y, sx, sy, sprite) {
       spriteTemp.data[4 * (v * sprite.width + u) + 3] = 255;
     }
   }
-  if (cx > -sprite.width && cx < window.innerWidth && cy > -sprite.height && cy < viewableHeight) {
+  if (cx > -sprite.width && cx + sprite.width < window.innerWidth && cy > -sprite.height && cy + sprite.height < viewableHeight) {
     ctx.putImageData(spriteTemp, cx, cy);
   }
 }
