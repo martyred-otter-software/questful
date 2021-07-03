@@ -153,9 +153,9 @@ async function init() {
   ctx.fillStyle = "#00ff00";
   ctx.font = "30px Arial";
   if (DEBUG) {
-    ctx.fillText("Loading...", 10, 50); 
-  } else {
     ctx.fillText("Loading... Debug/Demo Lines Enabled", 10, 50);
+  } else {
+    ctx.fillText("Loading...", 10, 50); 
   }
   registerWithAPI();
   myId = getId();
