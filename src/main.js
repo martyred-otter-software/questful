@@ -79,31 +79,32 @@ init().then(() => {
             for (let i = 0; i < baseGraph.vertices.length; i++) {
               ctx.fillRect(baseGraph.vertices[i].x - sx, baseGraph.vertices[i].y - sy, 4, 4);
             }
-            if (enemies[0])
+            if (enemies[0]) {
               ctx.fillRect(enemies[0].x + enemies[0].ccx - sx, enemies[0].y + enemies[0].ccy - sy, 5, 5);
-            ctx.strokeStyle = "#ffffff";
-            for (let i = 0; i < baseGraph.edges.length; i++) {
-              ctx.beginPath();
-              ctx.moveTo(baseGraph.edges[i].v1.x - sx, baseGraph.edges[i].v1.y - sy);
-              ctx.lineTo(baseGraph.edges[i].v2.x - sx, baseGraph.edges[i].v2.y - sy);
-              ctx.stroke();
+              ctx.strokeStyle = "#ffffff";
+              for (let i = 0; i < baseGraph.edges.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(baseGraph.edges[i].v1.x - sx, baseGraph.edges[i].v1.y - sy);
+                ctx.lineTo(baseGraph.edges[i].v2.x - sx, baseGraph.edges[i].v2.y - sy);
+                ctx.stroke();
+              }
+              if (currentPath) {
+                ctx.strokeStyle = "#ffff00";
+                ctx.beginPath();
+                ctx.moveTo(currentPath.v1.x - sx, currentPath.v1.y - sy);
+                ctx.lineTo(currentPath.v2.x - sx, currentPath.v2.y - sy);
+                ctx.stroke();
+              }
+              for (let i = 0; i < currentPaths2.length; i++) {
+                let currentPath2 = currentPaths2[i];
+                ctx.strokeStyle = "#00ffff";
+                ctx.beginPath();
+                ctx.moveTo(currentPath2.v1.x - sx, currentPath2.v1.y - sy);
+                ctx.lineTo(currentPath2.v2.x - sx, currentPath2.v2.y - sy);
+                ctx.stroke();
+              }
+              ctx.strokeText(animatedObjects.length, 10, 10);
             }
-            if (currentPath) {
-              ctx.strokeStyle = "#ffff00";
-              ctx.beginPath();
-              ctx.moveTo(currentPath.v1.x - sx, currentPath.v1.y - sy);
-              ctx.lineTo(currentPath.v2.x - sx, currentPath.v2.y - sy);
-              ctx.stroke();
-            }
-            for (let i = 0; i < currentPaths2.length; i++) {
-              let currentPath2 = currentPaths2[i];
-              ctx.strokeStyle = "#00ffff";
-              ctx.beginPath();
-              ctx.moveTo(currentPath2.v1.x - sx, currentPath2.v1.y - sy);
-              ctx.lineTo(currentPath2.v2.x - sx, currentPath2.v2.y - sy);
-              ctx.stroke();
-            }
-            ctx.strokeText(animatedObjects.length, 10, 10);
           }
           drawHUD(player);
         }, delay);
