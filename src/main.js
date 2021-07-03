@@ -150,6 +150,9 @@ init().then(() => {
 });
 
 async function init() {
+  ctx.fillStyle = "#00ff00";
+  ctx.font = "30px Arial";
+  ctx.fillText("Loading...", 10, 50); 
   registerWithAPI();
   myId = getId();
   for (let c = 0; c < ANIMATED_OBJECT_TYPES.length; c++) {
