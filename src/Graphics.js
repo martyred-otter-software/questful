@@ -60,7 +60,6 @@ function drawBG(sx, sy) {
 function drawHUD(player) {
   ctx.fillStyle = '#111111';
   ctx.fillRect(0, viewableHeight, window.innerWidth, window.innerHeight);
-  ctx.putImageData(HUDBG, 0, viewableHeight);
   let barData = layoutData['HUD']['HPBar'];
   ctx.fillStyle = barData['fullColor'];
   ctx.fillRect(barData['x'], viewableHeight + barData['y'], Math.floor(player.HP / player.maxHP * barData['w']), barData['h']);
