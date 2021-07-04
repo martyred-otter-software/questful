@@ -7,6 +7,9 @@ class Enemy extends Character {
     this.HPBarWidth = this.data['sprite']['HPBarWidth'];
   }
 
+  // move method for the Enemy class
+  // Generates a Graph object that consists of all the pre-computed vertices of the collision map,
+  // then adds a vertex for the player's position and this enemy's position.
   move() {
     super.move();
     if (this.markedForDeletion)
@@ -26,6 +29,9 @@ class Enemy extends Character {
         currentPaths2.push(new Edge(p, v));
       }
     });
+    
+    // Find the shortest path to p and then move along the line to
+    // the next vertex of this path.
     let pathData = dijkstra(tempGraph, p);
     console.log(pathData.distTo[e.toString()])
     if (pathData.distTo[e.toString()] === Infinity) {
