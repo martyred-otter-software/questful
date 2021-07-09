@@ -16,7 +16,7 @@ function getId() {
   while (!foundValidId) {
     foundValidId = true;
     for (let i = 0; i < allies.length; i++) {
-      if (idCandidate.toString() === allies[i].id) {s
+      if (idCandidate.toString() === allies[i].id) {
         foundValidId = false;
         break;
       }
